@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { Note, NoteCreateRequest, NoteUpdateRequest } from '../types/note';
-import { PageResponse } from '../types/common';
+import { PageResponse, SearchParams } from '../types/common';
 import noteService from '../services/noteService';
 
 interface NoteState {
@@ -17,11 +17,11 @@ const initialState: NoteState = {
   error: null,
 };
 
-export const fetchNotes = createAsyncThunk(
+export const fetchNotes = createAsyncThunk<any, SearchParams | void>(
   'notes/fetchAll',
-  async (params?: any, { rejectWithValue }) => {
+  async (params, { rejectWithValue }) => {
     try {
-      return await noteService.getAll(params);
+      return await noteService.getAll(params || undefined);
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch notes');
     }

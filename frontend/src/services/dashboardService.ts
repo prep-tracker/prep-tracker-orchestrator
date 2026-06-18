@@ -1,20 +1,28 @@
 import api from './api';
 
 export interface DashboardStats {
-  totalResources: number;
-  completedResources: number;
-  totalPlans: number;
-  completedPlans: number;
-  totalGoals: number;
-  achievedGoals: number;
-  totalCertifications: number;
-  completedCertifications: number;
-  totalStudyHours: number;
-  weeklyStudyHours: number;
-  currentStreak: number;
-  pendingTasks: number;
-  upcomingDeadlines: Array<{ id: number; title: string; dueDate: string; type: string }>;
-  recentActivity: Array<{ id: number; action: string; description: string; timestamp: string }>;
+  totalStudyHoursWeek: number;
+  activePlansCount: number;
+  certificationsCount: number;
+  goalsCount: number;
+  upcomingCertifications: Array<{
+    id: number;
+    name: string;
+    provider?: string;
+    examDate?: string;
+    targetDate?: string;
+    status: string;
+    progress: number;
+  }>;
+  recentStudySessions: Array<{
+    id: number;
+    sessionDate: string;
+    durationMinutes: number;
+    notes?: string;
+    topicCovered: string;
+  }>;
+  unreadNotificationsCount: number;
+  learningStreak: number;
 }
 
 const dashboardService = {

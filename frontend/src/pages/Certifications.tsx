@@ -51,7 +51,7 @@ const Certifications: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
-    if (confirm('Delete this certification?')) {
+    if (window.confirm('Delete this certification?')) {
       dispatch(deleteCertification(id)).then(() => setSnackbar('Certification deleted'));
     }
   };

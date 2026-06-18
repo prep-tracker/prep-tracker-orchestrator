@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { Resource, ResourceCreateRequest, ResourceUpdateRequest } from '../types/resource';
-import { PageResponse } from '../types/common';
+import { PageResponse, SearchParams } from '../types/common';
 import resourceService from '../services/resourceService';
 
 interface ResourceState {
@@ -12,9 +12,9 @@ interface ResourceState {
 
 const initialState: ResourceState = { items: [], totalElements: 0, loading: false, error: null };
 
-export const fetchResources = createAsyncThunk('resources/fetchAll', async (params?: any, { rejectWithValue }) => {
+export const fetchResources = createAsyncThunk<any, SearchParams | void>('resources/fetchAll', async (params, { rejectWithValue }) => {
   try {
-    return await resourceService.getAll(params);
+    return await resourceService.getAll(params || undefined);
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to fetch resources');
   }

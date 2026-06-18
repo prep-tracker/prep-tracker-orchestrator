@@ -21,7 +21,7 @@ const StudySessions: React.FC = () => {
 
   const [form, setForm] = useState({
     title: '', description: '', topic: '', startTime: '',
-    endTime: '', notes: '', resourceId: undefined as number | undefined
+    endTime: '', duration: undefined as number | undefined, notes: '', resourceId: undefined as number | undefined
   });
 
   useEffect(() => { dispatch(fetchSessions()); }, [dispatch]);
@@ -32,11 +32,12 @@ const StudySessions: React.FC = () => {
       setForm({
         title: session.title, description: session.description || '', topic: session.topic || '',
         startTime: session.startTime, endTime: session.endTime || '',
+        duration: session.duration,
         notes: session.notes || '', resourceId: session.resourceId
       });
     } else {
       setEditing(null);
-      setForm({ title: '', description: '', topic: '', startTime: '', endTime: '', notes: '', resourceId: undefined });
+      setForm({ title: '', description: '', topic: '', startTime: '', endTime: '', duration: undefined, notes: '', resourceId: undefined });
     }
     setOpen(true);
   };
@@ -50,7 +51,7 @@ const StudySessions: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
-    if (confirm('Delete this session?')) {
+    if (window.confirm('Delete this session?')) {
       dispatch(deleteSession(id)).then(() => setSnackbar('Session deleted'));
     }
   };

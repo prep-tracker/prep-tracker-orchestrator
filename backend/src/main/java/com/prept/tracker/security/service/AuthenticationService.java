@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.prept.tracker.service.DemoDataSeederService;
 import java.util.HashSet;
 
 @Service
@@ -30,6 +31,7 @@ public class AuthenticationService {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
+    private final DemoDataSeederService demoDataSeederService;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -54,6 +56,7 @@ public class AuthenticationService {
         user.getRoles().add(userRole);
 
         userRepository.save(user);
+        demoDataSeederService.seedDemoData(user);
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
         String accessToken = jwtTokenProvider.generateToken(userDetails);

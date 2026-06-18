@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { InterviewTopic, InterviewTopicCreateRequest, InterviewTopicUpdateRequest } from '../types/interview';
-import { PageResponse } from '../types/common';
+import { PageResponse, SearchParams } from '../types/common';
 import interviewService from '../services/interviewService';
 
 interface InterviewState {
@@ -17,11 +17,11 @@ const initialState: InterviewState = {
   error: null,
 };
 
-export const fetchInterviewTopics = createAsyncThunk(
+export const fetchInterviewTopics = createAsyncThunk<any, SearchParams | void>(
   'interviewTopics/fetchAll',
-  async (params?: any, { rejectWithValue }) => {
+  async (params, { rejectWithValue }) => {
     try {
-      return await interviewService.getAll(params);
+      return await interviewService.getAll(params || undefined);
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch interview topics');
     }

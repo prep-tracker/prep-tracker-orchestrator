@@ -58,11 +58,8 @@ const Profile: React.FC = () => {
           <Grid item xs={12} sm={6}>
             <TextField fullWidth label="Email" value={user?.email || ''} disabled />
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField fullWidth label="First Name" value={user?.firstName || '-'} disabled />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField fullWidth label="Last Name" value={user?.lastName || '-'} disabled />
+          <Grid item xs={12}>
+            <TextField fullWidth label="Full Name" value={user?.fullName || '-'} disabled />
           </Grid>
         </Grid>
       </Paper>

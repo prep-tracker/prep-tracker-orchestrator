@@ -53,7 +53,7 @@ const Plans: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
-    if (confirm('Delete this plan?')) {
+    if (window.confirm('Delete this plan?')) {
       dispatch(deletePlan(id)).then(() => setSnackbar('Plan deleted'));
     }
   };

@@ -30,4 +30,5 @@ public class ResourceRequest {
     private List<String> tags;
     private String notes;
     private Long categoryId;
+    private String categoryName;
 }

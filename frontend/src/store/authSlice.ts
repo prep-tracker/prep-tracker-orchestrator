@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { User } from '../types/auth';
 import authService from '../services/authService';
 
@@ -9,9 +9,20 @@ interface AuthState {
   error: string | null;
 }
 
+let initialUser: User | null = null;
+let initialToken: string | null = null;
+
+try {
+  const savedUser = localStorage.getItem('user');
+  initialUser = savedUser ? JSON.parse(savedUser) : null;
+  initialToken = localStorage.getItem('token');
+} catch (e) {
+  console.warn('localStorage is not accessible during auth initialization:', e);
+}
+
 const initialState: AuthState = {
-  user: JSON.parse(localStorage.getItem('user') || 'null'),
-  token: localStorage.getItem('token'),
+  user: initialUser,
+  token: initialToken,
   loading: false,
   error: null,
 };
@@ -19,20 +30,38 @@ const initialState: AuthState = {
 export const login = createAsyncThunk('auth/login', async (credentials: { username: string; password: string }, { rejectWithValue }) => {
   try {
     const response = await authService.login(credentials);
-    localStorage.setItem('token', response.token);
-    localStorage.setItem('user', JSON.stringify(response.user));
-    return response;
+    try {
+      localStorage.setItem('token', response.token);
+    } catch (e) {
+      console.warn('localStorage is not writeable during login:', e);
+    }
+    const user = await authService.getCurrentUser();
+    try {
+      localStorage.setItem('user', JSON.stringify(user));
+    } catch (e) {
+      console.warn('localStorage is not writeable during login:', e);
+    }
+    return { token: response.token, user };
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Login failed');
   }
 });
 
-export const register = createAsyncThunk('auth/register', async (userData: { username: string; email: string; password: string }, { rejectWithValue }) => {
+export const register = createAsyncThunk('auth/register', async (userData: { username: string; email: string; password: string; fullName?: string }, { rejectWithValue }) => {
   try {
     const response = await authService.register(userData);
-    localStorage.setItem('token', response.token);
-    localStorage.setItem('user', JSON.stringify(response.user));
-    return response;
+    try {
+      localStorage.setItem('token', response.token);
+    } catch (e) {
+      console.warn('localStorage is not writeable during register:', e);
+    }
+    const user = await authService.getCurrentUser();
+    try {
+      localStorage.setItem('user', JSON.stringify(user));
+    } catch (e) {
+      console.warn('localStorage is not writeable during register:', e);
+    }
+    return { token: response.token, user };
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Registration failed');
   }
@@ -53,8 +82,12 @@ const authSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.token = null;
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      try {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      } catch (e) {
+        console.warn('localStorage is not writeable during logout:', e);
+      }
     },
     clearError: (state) => {
       state.error = null;

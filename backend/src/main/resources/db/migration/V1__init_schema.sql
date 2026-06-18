@@ -1,20 +1,3 @@
-CREATE TYPE resource_type AS ENUM (
-    'UDEMY_COURSE', 'YOUTUBE_PLAYLIST', 'DOCUMENTATION', 'BOOK', 'BLOG',
-    'GITHUB_REPOSITORY', 'CERTIFICATION_PROGRAM', 'PRACTICE_PLATFORM'
-);
-
-CREATE TYPE difficulty AS ENUM ('BEGINNER', 'INTERMEDIATE', 'ADVANCED');
-
-CREATE TYPE plan_priority AS ENUM ('LOW', 'MEDIUM', 'HIGH', 'URGENT');
-
-CREATE TYPE plan_status AS ENUM ('NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'ON_HOLD');
-
-CREATE TYPE certification_status AS ENUM ('NOT_STARTED', 'SCHEDULED', 'IN_PROGRESS', 'PASSED', 'FAILED');
-
-CREATE TYPE goal_status AS ENUM ('ACTIVE', 'COMPLETED', 'ABANDONED', 'ON_HOLD');
-
-CREATE TYPE notification_type AS ENUM ('EMAIL', 'IN_APP');
-
 CREATE TABLE roles (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL UNIQUE,
@@ -50,17 +33,22 @@ CREATE TABLE categories (
 CREATE TABLE resources (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    type resource_type NOT NULL,
+    type VARCHAR(50) NOT NULL,
     url TEXT,
     author VARCHAR(255),
     estimated_hours INTEGER CHECK (estimated_hours >= 0),
-    difficulty difficulty,
-    tags TEXT[],
+    difficulty VARCHAR(50),
     notes TEXT,
     user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     category_id BIGINT REFERENCES categories(id) ON DELETE SET NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     modified_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE resource_tags (
+    resource_id BIGINT NOT NULL REFERENCES resources(id) ON DELETE CASCADE,
+    tag VARCHAR(255) NOT NULL,
+    PRIMARY KEY (resource_id, tag)
 );
 
 CREATE INDEX idx_resources_user_id ON resources(user_id);
@@ -73,8 +61,8 @@ CREATE TABLE preparation_plans (
     resource_id BIGINT REFERENCES resources(id) ON DELETE SET NULL,
     target_completion_date DATE,
     estimated_hours INTEGER CHECK (estimated_hours >= 0),
-    priority plan_priority NOT NULL DEFAULT 'MEDIUM',
-    status plan_status NOT NULL DEFAULT 'NOT_STARTED',
+    priority VARCHAR(50) NOT NULL DEFAULT 'MEDIUM',
+    status VARCHAR(50) NOT NULL DEFAULT 'NOT_STARTED',
     progress INTEGER NOT NULL DEFAULT 0 CHECK (progress >= 0 AND progress <= 100),
     user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -107,7 +95,7 @@ CREATE TABLE certifications (
     target_date DATE,
     cost NUMERIC(10,2),
     progress INTEGER NOT NULL DEFAULT 0 CHECK (progress >= 0 AND progress <= 100),
-    status certification_status NOT NULL DEFAULT 'NOT_STARTED',
+    status VARCHAR(50) NOT NULL DEFAULT 'NOT_STARTED',
     user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     modified_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -123,7 +111,7 @@ CREATE TABLE goals (
     start_date DATE,
     target_date DATE,
     progress INTEGER NOT NULL DEFAULT 0 CHECK (progress >= 0 AND progress <= 100),
-    status goal_status NOT NULL DEFAULT 'ACTIVE',
+    status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE',
     user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     modified_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -159,11 +147,16 @@ CREATE TABLE notes (
     id BIGSERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     content TEXT,
-    tags TEXT[],
     attachment_url TEXT,
     user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     modified_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE note_tags (
+    note_id BIGINT NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
+    tag VARCHAR(255) NOT NULL,
+    PRIMARY KEY (note_id, tag)
 );
 
 CREATE INDEX idx_notes_user_id ON notes(user_id);
@@ -185,7 +178,7 @@ CREATE INDEX idx_revisions_next_reminder ON revisions(next_reminder);
 
 CREATE TABLE notifications (
     id BIGSERIAL PRIMARY KEY,
-    type notification_type NOT NULL DEFAULT 'IN_APP',
+    type VARCHAR(50) NOT NULL DEFAULT 'IN_APP',
     message TEXT NOT NULL,
     read BOOLEAN NOT NULL DEFAULT false,
     user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -201,7 +194,7 @@ CREATE TABLE interview_topics (
     total_questions INTEGER NOT NULL DEFAULT 0 CHECK (total_questions >= 0),
     solved_questions INTEGER NOT NULL DEFAULT 0 CHECK (solved_questions >= 0),
     revision_count INTEGER NOT NULL DEFAULT 0,
-    difficulty difficulty,
+    difficulty VARCHAR(50),
     user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     modified_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP

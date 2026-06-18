@@ -11,7 +11,6 @@ import org.mapstruct.Named;
 @Mapper(componentModel = "spring", uses = {ResourceMapper.class})
 public interface StudySessionMapper {
 
-    @Mapping(target = "resource", source = "resource", qualifiedByName = "toResourceResponse")
     StudySessionResponse toResponse(StudySession session);
 
     @Mapping(target = "id", ignore = true)
@@ -26,13 +25,4 @@ public interface StudySessionMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "modifiedAt", ignore = true)
     void updateEntity(StudySessionRequest request, @MappingTarget StudySession session);
-
-    @Named("toResourceResponse")
-    default com.prept.tracker.dto.response.ResourceResponse mapResource(
-            com.prept.tracker.domain.entity.Resource resource) {
-        if (resource == null) {
-            return null;
-        }
-        return ResourceMapper.INSTANCE.toResponse(resource);
-    }
 }

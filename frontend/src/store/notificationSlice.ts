@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { Notification } from '../types/notification';
-import { PageResponse } from '../types/common';
+import { PageResponse, SearchParams } from '../types/common';
 import notificationService from '../services/notificationService';
 
 interface NotificationState {
@@ -19,11 +19,11 @@ const initialState: NotificationState = {
   error: null,
 };
 
-export const fetchNotifications = createAsyncThunk(
+export const fetchNotifications = createAsyncThunk<any, SearchParams | void>(
   'notifications/fetchAll',
-  async (params?: any, { rejectWithValue }) => {
+  async (params, { rejectWithValue }) => {
     try {
-      return await notificationService.getAll(params);
+      return await notificationService.getAll(params || undefined);
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch notifications');
     }

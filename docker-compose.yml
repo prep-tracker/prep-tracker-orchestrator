@@ -24,7 +24,7 @@ services:
     image: dpage/pgadmin4:latest
     container_name: prept-pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@prept.local
+      PGADMIN_DEFAULT_EMAIL: admin@prept.com
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
       - "5050:80"
@@ -44,7 +44,7 @@ services:
       DATABASE_USER: preptuser
       DATABASE_PASSWORD: preptpass
       JWT_SECRET: ${JWT_SECRET:-5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437}
-      CORS_ORIGINS: http://localhost:3000,http://prept-frontend:80
+      CORS_ORIGINS: http://localhost:3000,http://127.0.0.1:3000,http://[::1]:3000,http://prept-frontend:80
       MAIL_HOST: mailpit
       MAIL_PORT: 1025
     ports:

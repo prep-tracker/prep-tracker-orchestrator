@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { Roadmap, RoadmapItem, RoadmapCreateRequest, RoadmapUpdateRequest, RoadmapItemCreateRequest, RoadmapItemUpdateRequest } from '../types/roadmap';
-import { PageResponse } from '../types/common';
+import { PageResponse, SearchParams } from '../types/common';
 import roadmapService from '../services/roadmapService';
 
 interface RoadmapState {
@@ -17,11 +17,11 @@ const initialState: RoadmapState = {
   error: null,
 };
 
-export const fetchRoadmaps = createAsyncThunk(
+export const fetchRoadmaps = createAsyncThunk<any, SearchParams | void>(
   'roadmaps/fetchAll',
-  async (params?: any, { rejectWithValue }) => {
+  async (params, { rejectWithValue }) => {
     try {
-      return await roadmapService.getAll(params);
+      return await roadmapService.getAll(params || undefined);
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch roadmaps');
     }
@@ -77,7 +77,8 @@ export const updateRoadmapItem = createAsyncThunk(
   'roadmaps/updateItem',
   async ({ roadmapId, itemId, data }: { roadmapId: number; itemId: number; data: RoadmapItemUpdateRequest }, { rejectWithValue }) => {
     try {
-      return await roadmapService.updateItem(roadmapId, itemId, data);
+      const item = await roadmapService.updateItem(roadmapId, itemId, data);
+      return { roadmapId, item };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to update roadmap item');
     }
@@ -129,11 +130,11 @@ const roadmapSlice = createSlice({
       .addCase(deleteRoadmap.fulfilled, (state, action) => {
         state.items = state.items.filter((r) => r.id !== action.payload);
       })
-      .addCase(updateRoadmapItem.fulfilled, (state, action) => {
+      .addCase(updateRoadmapItem.fulfilled, (state, action: any) => {
         const roadmap = state.items.find((r) => r.id === action.payload.roadmapId);
         if (roadmap) {
-          const idx = roadmap.items.findIndex((i) => i.id === action.payload.id);
-          if (idx !== -1) roadmap.items[idx] = action.payload;
+          const idx = roadmap.items.findIndex((i) => i.id === action.payload.item.id);
+          if (idx !== -1) roadmap.items[idx] = action.payload.item;
         }
       });
   },

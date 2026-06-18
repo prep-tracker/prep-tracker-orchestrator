@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { Revision, RevisionCreateRequest, RevisionUpdateRequest } from '../types/revision';
-import { PageResponse } from '../types/common';
+import { PageResponse, SearchParams } from '../types/common';
 import revisionService from '../services/revisionService';
 
 interface RevisionState {
@@ -17,11 +17,11 @@ const initialState: RevisionState = {
   error: null,
 };
 
-export const fetchRevisions = createAsyncThunk(
+export const fetchRevisions = createAsyncThunk<any, SearchParams | void>(
   'revisions/fetchAll',
-  async (params?: any, { rejectWithValue }) => {
+  async (params, { rejectWithValue }) => {
     try {
-      return await revisionService.getAll(params);
+      return await revisionService.getAll(params || undefined);
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch revisions');
     }

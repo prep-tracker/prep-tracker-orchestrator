@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { PreparationPlan, PlanCreateRequest, PlanUpdateRequest } from '../types/plan';
-import { PageResponse } from '../types/common';
+import { PageResponse, SearchParams } from '../types/common';
 import planService from '../services/planService';
 
 interface PlanState {
@@ -17,11 +17,11 @@ const initialState: PlanState = {
   error: null,
 };
 
-export const fetchPlans = createAsyncThunk(
+export const fetchPlans = createAsyncThunk<any, SearchParams | void>(
   'plans/fetchAll',
-  async (params?: any, { rejectWithValue }) => {
+  async (params, { rejectWithValue }) => {
     try {
-      return await planService.getAll(params);
+      return await planService.getAll(params || undefined);
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch plans');
     }

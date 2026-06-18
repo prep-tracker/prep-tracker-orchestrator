@@ -50,7 +50,7 @@ const InterviewTopics: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
-    if (confirm('Delete this topic?')) {
+    if (window.confirm('Delete this topic?')) {
       dispatch(deleteInterviewTopic(id)).then(() => setSnackbar('Topic deleted'));
     }
   };

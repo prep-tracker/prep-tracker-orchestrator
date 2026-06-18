@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { Certification, CertificationCreateRequest, CertificationUpdateRequest } from '../types/certification';
-import { PageResponse } from '../types/common';
+import { PageResponse, SearchParams } from '../types/common';
 import certificationService from '../services/certificationService';
 
 interface CertificationState {
@@ -17,11 +17,11 @@ const initialState: CertificationState = {
   error: null,
 };
 
-export const fetchCertifications = createAsyncThunk(
+export const fetchCertifications = createAsyncThunk<any, SearchParams | void>(
   'certifications/fetchAll',
-  async (params?: any, { rejectWithValue }) => {
+  async (params, { rejectWithValue }) => {
     try {
-      return await certificationService.getAll(params);
+      return await certificationService.getAll(params || undefined);
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch certifications');
     }

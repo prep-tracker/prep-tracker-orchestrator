@@ -6,7 +6,7 @@ export const NAV_ITEMS = [
   { label: 'Dashboard', path: '/', icon: 'Dashboard' },
   { label: 'Resources', path: '/resources', icon: 'LibraryBooks' },
   { label: 'Plans', path: '/plans', icon: 'Assignment' },
-  { label: 'Study Sessions', path: '/sessions', icon: 'School' },
+  { label: 'Study Sessions', path: '/study-sessions', icon: 'School' },
   { label: 'Certifications', path: '/certifications', icon: 'VerifiedUser' },
   { label: 'Goals', path: '/goals', icon: 'Flag' },
   { label: 'Roadmaps', path: '/roadmaps', icon: 'Map' },

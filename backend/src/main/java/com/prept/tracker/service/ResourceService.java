@@ -33,11 +33,23 @@ public class ResourceService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         Resource resource = resourceMapper.toEntity(request);
         resource.setUser(user);
+        Category category = null;
         if (request.getCategoryId() != null) {
-            Category category = categoryRepository.findById(request.getCategoryId())
+            category = categoryRepository.findById(request.getCategoryId())
                     .orElseThrow(() -> new EntityNotFoundException("Category not found"));
-            resource.setCategory(category);
+        } else if (request.getCategoryName() != null && !request.getCategoryName().isBlank()) {
+            final String catName = request.getCategoryName().trim();
+            category = categoryRepository.findByName(catName)
+                    .orElseGet(() -> {
+                        Category newCat = Category.builder()
+                                .name(catName)
+                                .description("Auto-created category: " + catName)
+                                .user(user)
+                                .build();
+                        return categoryRepository.save(newCat);
+                    });
         }
+        resource.setCategory(category);
         Resource saved = resourceRepository.save(resource);
         return resourceMapper.toResponse(saved);
     }
@@ -50,13 +62,23 @@ public class ResourceService {
             throw new EntityNotFoundException("Resource not found");
         }
         resourceMapper.updateEntity(request, resource);
+        Category category = null;
         if (request.getCategoryId() != null) {
-            Category category = categoryRepository.findById(request.getCategoryId())
+            category = categoryRepository.findById(request.getCategoryId())
                     .orElseThrow(() -> new EntityNotFoundException("Category not found"));
-            resource.setCategory(category);
-        } else {
-            resource.setCategory(null);
+        } else if (request.getCategoryName() != null && !request.getCategoryName().isBlank()) {
+            final String catName = request.getCategoryName().trim();
+            category = categoryRepository.findByName(catName)
+                    .orElseGet(() -> {
+                        Category newCat = Category.builder()
+                                .name(catName)
+                                .description("Auto-created category: " + catName)
+                                .user(resource.getUser())
+                                .build();
+                        return categoryRepository.save(newCat);
+                    });
         }
+        resource.setCategory(category);
         Resource saved = resourceRepository.save(resource);
         return resourceMapper.toResponse(saved);
     }

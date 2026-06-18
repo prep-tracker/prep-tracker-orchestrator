@@ -50,7 +50,7 @@ const Goals: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
-    if (confirm('Delete this goal?')) {
+    if (window.confirm('Delete this goal?')) {
       dispatch(deleteGoal(id)).then(() => setSnackbar('Goal deleted'));
     }
   };

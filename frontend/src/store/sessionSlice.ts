@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { StudySession, SessionCreateRequest, SessionUpdateRequest } from '../types/session';
-import { PageResponse } from '../types/common';
+import { PageResponse, SearchParams } from '../types/common';
 import sessionService from '../services/sessionService';
 
 interface SessionState {
@@ -17,11 +17,11 @@ const initialState: SessionState = {
   error: null,
 };
 
-export const fetchSessions = createAsyncThunk(
+export const fetchSessions = createAsyncThunk<any, SearchParams | void>(
   'sessions/fetchAll',
-  async (params?: any, { rejectWithValue }) => {
+  async (params, { rejectWithValue }) => {
     try {
-      return await sessionService.getAll(params);
+      return await sessionService.getAll(params || undefined);
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch sessions');
     }

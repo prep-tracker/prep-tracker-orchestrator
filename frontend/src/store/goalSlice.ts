@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { Goal, GoalCreateRequest, GoalUpdateRequest } from '../types/goal';
-import { PageResponse } from '../types/common';
+import { PageResponse, SearchParams } from '../types/common';
 import goalService from '../services/goalService';
 
 interface GoalState {
@@ -17,11 +17,11 @@ const initialState: GoalState = {
   error: null,
 };
 
-export const fetchGoals = createAsyncThunk(
+export const fetchGoals = createAsyncThunk<any, SearchParams | void>(
   'goals/fetchAll',
-  async (params?: any, { rejectWithValue }) => {
+  async (params, { rejectWithValue }) => {
     try {
-      return await goalService.getAll(params);
+      return await goalService.getAll(params || undefined);
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch goals');
     }

@@ -3,8 +3,9 @@ import {
   Container, Typography, Button, Paper, Accordion, AccordionSummary,
   AccordionDetails, List, ListItem, ListItemIcon, ListItemText, Checkbox,
   Dialog, DialogTitle, DialogContent, DialogActions, TextField, Box, IconButton,
-  Snackbar, Add as AddIcon
+  Snackbar
 } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useAppDispatch, useAppSelector } from '../store';
@@ -50,7 +51,7 @@ const Roadmaps: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
-    if (confirm('Delete this roadmap?')) {
+    if (window.confirm('Delete this roadmap?')) {
       dispatch(deleteRoadmap(id)).then(() => setSnackbar('Roadmap deleted'));
     }
   };

@@ -50,7 +50,7 @@ const Revisions: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
-    if (confirm('Delete this revision?')) {
+    if (window.confirm('Delete this revision?')) {
       dispatch(deleteRevision(id)).then(() => setSnackbar('Revision deleted'));
     }
   };

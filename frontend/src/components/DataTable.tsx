@@ -62,10 +62,14 @@ const DataTable: React.FC<DataTableProps> = ({
         rows={rows}
         columns={allColumns}
         loading={loading}
-        pageSize={pageSize}
-        rowsPerPageOptions={[5, 10, 25]}
+        initialState={{
+          pagination: {
+            paginationModel: { pageSize },
+          },
+        }}
+        pageSizeOptions={[5, 10, 25]}
         onRowClick={(params) => onRowClick?.(params.row)}
-        disableSelectionOnClick
+        disableRowSelectionOnClick
         sx={{ backgroundColor: 'background.paper' }}
       />
     </Box>

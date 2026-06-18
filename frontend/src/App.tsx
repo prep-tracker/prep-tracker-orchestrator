@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
@@ -16,9 +16,21 @@ import Revisions from './pages/Revisions';
 import InterviewTopics from './pages/InterviewTopics';
 import Analytics from './pages/Analytics';
 import Profile from './pages/Profile';
+import Notifications from './pages/Notifications';
 import NotFound from './pages/NotFound';
+import { useAppDispatch, useAppSelector } from './store';
+import { getCurrentUser } from './store/authSlice';
 
 const App: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const { token, user } = useAppSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (token && !user) {
+      dispatch(getCurrentUser());
+    }
+  }, [token, user, dispatch]);
+
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
@@ -43,6 +55,7 @@ const App: React.FC = () => {
         <Route path="interview-topics" element={<InterviewTopics />} />
         <Route path="analytics" element={<Analytics />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="notifications" element={<Notifications />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

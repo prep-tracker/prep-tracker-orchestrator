@@ -55,7 +55,7 @@ const Resources: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
-    if (confirm('Delete this resource?')) {
+    if (window.confirm('Delete this resource?')) {
       dispatch(deleteResource(id)).then(() => setSnackbar('Resource deleted'));
     }
   };

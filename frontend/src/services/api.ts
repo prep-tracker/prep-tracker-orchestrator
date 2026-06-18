@@ -12,7 +12,12 @@ const api: AxiosInstance = axios.create({
 // Request interceptor - attach JWT token
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem('token');
+    let token = null;
+    try {
+      token = localStorage.getItem('token');
+    } catch (e) {
+      console.warn('localStorage is not available:', e);
+    }
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -27,9 +32,13 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: AxiosError) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      try {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      } catch (e) {
+        console.warn('localStorage is not writeable:', e);
+      }
       window.location.href = '/login';
     }
     return Promise.reject(error);

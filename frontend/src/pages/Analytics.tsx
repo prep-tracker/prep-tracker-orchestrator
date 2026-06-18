@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Container, Typography, Paper, Grid, Box } from '@mui/material';
-import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, BarElement } from 'chart.js';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import ProgressChart from '../components/ProgressChart';
 
-ChartJS.register(ArcElement, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(ArcElement, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, BarElement);
 
 const Analytics: React.FC = () => {
   const [weeklyLabels] = useState(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']);

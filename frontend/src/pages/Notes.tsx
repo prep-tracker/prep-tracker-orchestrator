@@ -50,7 +50,7 @@ const Notes: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
-    if (confirm('Delete this note?')) {
+    if (window.confirm('Delete this note?')) {
       dispatch(deleteNote(id)).then(() => setSnackbar('Note deleted'));
     }
   };
