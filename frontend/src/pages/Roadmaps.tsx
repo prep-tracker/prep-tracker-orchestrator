@@ -3,18 +3,21 @@ import {
   Container, Typography, Button, Paper, Accordion, AccordionSummary,
   AccordionDetails, List, ListItem, ListItemIcon, ListItemText, Checkbox,
   Dialog, DialogTitle, DialogContent, DialogActions, TextField, Box, IconButton,
-  Snackbar
+  Snackbar, Alert
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store';
 import { fetchRoadmaps, createRoadmap, deleteRoadmap, updateRoadmapItem } from '../store/roadmapSlice';
 import { Roadmap, RoadmapItemStatus } from '../types/roadmap';
 
 const Roadmaps: React.FC = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { items } = useAppSelector((state) => state.roadmaps);
+  const { user } = useAppSelector((state) => state.auth);
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | false>(false);
   const [snackbar, setSnackbar] = useState('');
@@ -24,7 +27,15 @@ const Roadmaps: React.FC = () => {
 
   useEffect(() => { dispatch(fetchRoadmaps()); }, [dispatch]);
 
+  const isLimitReached = (user?.subscription?.planType || 'FREE') === 'FREE' && items.length >= 2;
+
   const handleOpen = () => {
+    if (isLimitReached) {
+      if (window.confirm('You have reached the 2-roadmap limit on the FREE plan. Would you like to view our subscription plans to upgrade?')) {
+        navigate('/subscription');
+      }
+      return;
+    }
     setForm({ title: '', description: '', targetDate: '' });
     setItemsList([{ title: '', description: '' }]);
     setOpen(true);
@@ -39,15 +50,18 @@ const Roadmaps: React.FC = () => {
 
   const handleSave = () => {
     const validItems = itemsList.filter(i => i.title.trim());
-    dispatch(createRoadmap({ ...form, targetDate: form.targetDate || undefined })).then((result: any) => {
-      if (result.payload?.id) {
-        validItems.forEach(item => {
-          // Items would be added via addRoadmapItem in a full implementation
-        });
-      }
-      setOpen(false);
-      setSnackbar('Roadmap created');
-    });
+    dispatch(createRoadmap({ ...form, targetDate: form.targetDate || undefined }))
+      .unwrap()
+      .then((result: any) => {
+        if (result?.id) {
+          validItems.forEach(item => {
+            // Items would be added via addRoadmapItem in a full implementation
+          });
+        }
+        setOpen(false);
+        setSnackbar('Roadmap created');
+      })
+      .catch((err: any) => setSnackbar(err));
   };
 
   const handleDelete = (id: number) => {
@@ -67,6 +81,16 @@ const Roadmaps: React.FC = () => {
         <Typography variant="h4">Roadmaps</Typography>
         <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpen}>Add Roadmap</Button>
       </Box>
+
+      {isLimitReached && (
+        <Alert severity="warning" sx={{ mb: 2 }} action={
+          <Button color="inherit" size="small" onClick={() => navigate('/subscription')}>
+            Upgrade
+          </Button>
+        }>
+          You have reached the FREE plan limit of 2 roadmaps. Please upgrade to Premium or Pro to create more.
+        </Alert>
+      )}
 
       {items.map(r => (
         <Accordion key={r.id} expanded={expanded === `roadmap-${r.id}`} onChange={(_, isExpanded) => setExpanded(isExpanded ? `roadmap-${r.id}` : false)}>

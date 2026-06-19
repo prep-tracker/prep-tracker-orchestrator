@@ -3,18 +3,21 @@ import {
   Container, Typography, Button, Paper, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, IconButton, Dialog, DialogTitle,
   DialogContent, DialogActions, TextField, Select, MenuItem, FormControl,
-  InputLabel, Box, LinearProgress, Snackbar
+  InputLabel, Box, LinearProgress, Snackbar, Alert
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store';
 import { fetchGoals, createGoal, updateGoal, deleteGoal } from '../store/goalSlice';
 import { Goal, GoalStatus } from '../types/goal';
 
 const Goals: React.FC = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { items } = useAppSelector((state) => state.goals);
+  const { user } = useAppSelector((state) => state.auth);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Goal | null>(null);
   const [snackbar, setSnackbar] = useState('');
@@ -26,7 +29,15 @@ const Goals: React.FC = () => {
 
   useEffect(() => { dispatch(fetchGoals()); }, [dispatch]);
 
+  const isLimitReached = (user?.subscription?.planType || 'FREE') === 'FREE' && items.length >= 3;
+
   const handleOpen = (goal?: Goal) => {
+    if (!goal && isLimitReached) {
+      if (window.confirm('You have reached the 3-goal limit on the FREE plan. Would you like to view our subscription plans to upgrade?')) {
+        navigate('/subscription');
+      }
+      return;
+    }
     if (goal) {
       setEditing(goal);
       setForm({
@@ -45,7 +56,10 @@ const Goals: React.FC = () => {
     if (editing) {
       dispatch(updateGoal({ id: editing.id, data })).then(() => { setOpen(false); setSnackbar('Goal updated'); });
     } else {
-      dispatch(createGoal(data)).then(() => { setOpen(false); setSnackbar('Goal created'); });
+      dispatch(createGoal(data))
+        .unwrap()
+        .then(() => { setOpen(false); setSnackbar('Goal created'); })
+        .catch((err: any) => setSnackbar(err));
     }
   };
 
@@ -61,6 +75,16 @@ const Goals: React.FC = () => {
         <Typography variant="h4">Goals</Typography>
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpen()}>Add Goal</Button>
       </Box>
+
+      {isLimitReached && (
+        <Alert severity="warning" sx={{ mb: 2 }} action={
+          <Button color="inherit" size="small" onClick={() => navigate('/subscription')}>
+            Upgrade
+          </Button>
+        }>
+          You have reached the FREE plan limit of 3 goals. Please upgrade to Premium or Pro to create more.
+        </Alert>
+      )}
 
       <TableContainer component={Paper}>
         <Table>

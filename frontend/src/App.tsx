@@ -16,6 +16,7 @@ import Revisions from './pages/Revisions';
 import InterviewTopics from './pages/InterviewTopics';
 import Analytics from './pages/Analytics';
 import Profile from './pages/Profile';
+import Subscription from './pages/Subscription';
 import Notifications from './pages/Notifications';
 import NotFound from './pages/NotFound';
 import { useAppDispatch, useAppSelector } from './store';
@@ -55,6 +56,7 @@ const App: React.FC = () => {
         <Route path="interview-topics" element={<InterviewTopics />} />
         <Route path="analytics" element={<Analytics />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="subscription" element={<Subscription />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="*" element={<NotFound />} />
       </Route>

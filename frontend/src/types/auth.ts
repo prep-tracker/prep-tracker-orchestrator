@@ -1,3 +1,5 @@
+import { Subscription } from './subscription';
+
 export interface LoginRequest {
   username: string;
   password: string;
@@ -26,4 +28,5 @@ export interface User {
   createdAt?: string;
   updatedAt?: string;
   roles?: string[];
+  subscription?: Subscription;
 }

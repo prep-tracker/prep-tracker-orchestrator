@@ -3,18 +3,21 @@ import {
   Container, Typography, Button, Paper, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, IconButton, Dialog, DialogTitle,
   DialogContent, DialogActions, TextField, Select, MenuItem, FormControl,
-  InputLabel, Box, LinearProgress, Snackbar
+  InputLabel, Box, LinearProgress, Snackbar, Alert
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store';
 import { fetchCertifications, createCertification, updateCertification, deleteCertification } from '../store/certificationSlice';
 import { Certification, CertificationStatus } from '../types/certification';
 
 const Certifications: React.FC = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { items } = useAppSelector((state) => state.certifications);
+  const { user } = useAppSelector((state) => state.auth);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Certification | null>(null);
   const [snackbar, setSnackbar] = useState('');
@@ -26,7 +29,16 @@ const Certifications: React.FC = () => {
 
   useEffect(() => { dispatch(fetchCertifications()); }, [dispatch]);
 
+  const plan = user?.subscription?.planType || 'FREE';
+  const isLimitReached = (plan === 'FREE' && items.length >= 1) || (plan === 'PREMIUM' && items.length >= 5);
+
   const handleOpen = (cert?: Certification) => {
+    if (!cert && isLimitReached) {
+      if (window.confirm(`You have reached the certification limit on the ${plan} plan (Max ${plan === 'FREE' ? 1 : 5}). Would you like to view our subscription plans to upgrade?`)) {
+        navigate('/subscription');
+      }
+      return;
+    }
     if (cert) {
       setEditing(cert);
       setForm({
@@ -46,7 +58,10 @@ const Certifications: React.FC = () => {
     if (editing) {
       dispatch(updateCertification({ id: editing.id, data })).then(() => { setOpen(false); setSnackbar('Certification updated'); });
     } else {
-      dispatch(createCertification(data)).then(() => { setOpen(false); setSnackbar('Certification created'); });
+      dispatch(createCertification(data))
+        .unwrap()
+        .then(() => { setOpen(false); setSnackbar('Certification created'); })
+        .catch((err: any) => setSnackbar(err));
     }
   };
 
@@ -62,6 +77,16 @@ const Certifications: React.FC = () => {
         <Typography variant="h4">Certifications</Typography>
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpen()}>Add Certification</Button>
       </Box>
+
+      {isLimitReached && (
+        <Alert severity="warning" sx={{ mb: 2 }} action={
+          <Button color="inherit" size="small" onClick={() => navigate('/subscription')}>
+            Upgrade
+          </Button>
+        }>
+          You have reached the {plan} plan limit of {plan === 'FREE' ? 1 : 5} certifications. Please upgrade your subscription tier to create more.
+        </Alert>
+      )}
 
       <TableContainer component={Paper}>
         <Table>

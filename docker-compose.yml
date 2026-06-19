@@ -33,25 +33,91 @@ services:
     networks:
       - prept-network
 
-  backend:
+  discovery-server:
     build:
-      context: ./backend
+      context: ./backend/discovery-server
       dockerfile: Dockerfile
-    container_name: prept-backend
+    container_name: prept-discovery-server
     environment:
-      SPRING_PROFILES_ACTIVE: dev
-      DATABASE_URL: jdbc:postgresql://postgres:5432/prepttracker
+      SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED: "false"
+    ports:
+      - "8761:8761"
+    networks:
+      - prept-network
+
+  api-gateway:
+    build:
+      context: ./backend/api-gateway
+      dockerfile: Dockerfile
+    container_name: prept-api-gateway
+    environment:
+      EUREKA_URL: http://discovery-server:8761/eureka/
+      JWT_SECRET: ${JWT_SECRET:-5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437}
+      SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED: "false"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - discovery-server
+    networks:
+      - prept-network
+
+  user-service:
+    build:
+      context: ./backend/user-service
+      dockerfile: Dockerfile
+    container_name: prept-user-service
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/prepttracker?currentSchema=prept_user
       DATABASE_USER: preptuser
       DATABASE_PASSWORD: preptpass
+      EUREKA_URL: http://discovery-server:8761/eureka/
       JWT_SECRET: ${JWT_SECRET:-5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437}
-      CORS_ORIGINS: http://localhost:3000,http://127.0.0.1:3000,http://[::1]:3000,http://prept-frontend:80
       MAIL_HOST: mailpit
       MAIL_PORT: 1025
-    ports:
-      - "8080:8080"
+      SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED: "false"
     depends_on:
       postgres:
         condition: service_healthy
+      discovery-server:
+        condition: service_started
+    networks:
+      - prept-network
+
+  tracker-service:
+    build:
+      context: ./backend/tracker-service
+      dockerfile: Dockerfile
+    container_name: prept-tracker-service
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/prepttracker?currentSchema=prept_tracker
+      DATABASE_USER: preptuser
+      DATABASE_PASSWORD: preptpass
+      EUREKA_URL: http://discovery-server:8761/eureka/
+      SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      discovery-server:
+        condition: service_started
+    networks:
+      - prept-network
+
+  notification-service:
+    build:
+      context: ./backend/notification-service
+      dockerfile: Dockerfile
+    container_name: prept-notification-service
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/prepttracker?currentSchema=prept_notification
+      DATABASE_USER: preptuser
+      DATABASE_PASSWORD: preptpass
+      EUREKA_URL: http://discovery-server:8761/eureka/
+      SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      discovery-server:
+        condition: service_started
     networks:
       - prept-network
 
@@ -72,7 +138,7 @@ services:
     ports:
       - "3000:80"
     depends_on:
-      - backend
+      - api-gateway
     networks:
       - prept-network
 

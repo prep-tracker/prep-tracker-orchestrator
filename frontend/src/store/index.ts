@@ -12,6 +12,7 @@ import noteReducer from './noteSlice';
 import revisionReducer from './revisionSlice';
 import notificationReducer from './notificationSlice';
 import interviewReducer from './interviewSlice';
+import subscriptionReducer from './subscriptionSlice';
 
 export const store = configureStore({
   reducer: {
@@ -27,6 +28,7 @@ export const store = configureStore({
     revisions: revisionReducer,
     notifications: notificationReducer,
     interviewTopics: interviewReducer,
+    subscription: subscriptionReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

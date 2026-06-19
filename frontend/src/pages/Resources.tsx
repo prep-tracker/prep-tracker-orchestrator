@@ -8,13 +8,16 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store';
 import { fetchResources, createResource, updateResource, deleteResource } from '../store/resourceSlice';
 import { Resource, ResourceType, Difficulty } from '../types/resource';
 
 const Resources: React.FC = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { items, loading, error } = useAppSelector((state) => state.resources);
+  const { user } = useAppSelector((state) => state.auth);
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Resource | null>(null);
@@ -30,7 +33,15 @@ const Resources: React.FC = () => {
 
   const filtered = filterType ? items.filter(r => r.type === filterType) : items;
 
+  const isLimitReached = (user?.subscription?.planType || 'FREE') === 'FREE' && items.length >= 3;
+
   const handleOpen = (resource?: Resource) => {
+    if (!resource && isLimitReached) {
+      if (window.confirm('You have reached the 3-resource limit on the FREE plan. Would you like to view our subscription plans to upgrade?')) {
+        navigate('/subscription');
+      }
+      return;
+    }
     if (resource) {
       setEditing(resource);
       setForm({
@@ -50,7 +61,10 @@ const Resources: React.FC = () => {
     if (editing) {
       dispatch(updateResource({ id: editing.id, data })).then(() => { setOpen(false); setSnackbar('Resource updated'); });
     } else {
-      dispatch(createResource(data)).then(() => { setOpen(false); setSnackbar('Resource created'); });
+      dispatch(createResource(data))
+        .unwrap()
+        .then(() => { setOpen(false); setSnackbar('Resource created'); })
+        .catch((err: any) => setSnackbar(err));
     }
   };
 
@@ -66,6 +80,16 @@ const Resources: React.FC = () => {
         <Typography variant="h4">Resources</Typography>
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpen()}>Add Resource</Button>
       </Box>
+
+      {isLimitReached && (
+        <Alert severity="warning" sx={{ mb: 2 }} action={
+          <Button color="inherit" size="small" onClick={() => navigate('/subscription')}>
+            Upgrade
+          </Button>
+        }>
+          You have reached the FREE plan limit of 3 learning resources. Please upgrade to Premium or Pro to create more.
+        </Alert>
+      )}
 
       <FormControl sx={{ mb: 2, minWidth: 200 }}>
         <InputLabel>Filter by Type</InputLabel>

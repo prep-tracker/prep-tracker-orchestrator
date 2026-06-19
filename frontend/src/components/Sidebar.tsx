@@ -22,6 +22,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import PsychologyIcon from '@mui/icons-material/Psychology';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import PersonIcon from '@mui/icons-material/Person';
+import PaymentIcon from '@mui/icons-material/Payment';
 import Logo from './Logo';
 import { useAppSelector } from '../store';
 
@@ -38,6 +39,7 @@ const iconMap: Record<string, React.ReactElement> = {
   Psychology: <PsychologyIcon />,
   BarChart: <BarChartIcon />,
   Person: <PersonIcon />,
+  Payment: <PaymentIcon />,
 };
 
 const NAV_ITEMS = [
@@ -53,6 +55,7 @@ const NAV_ITEMS = [
   { label: 'Interview Prep', path: '/interview-topics', icon: 'Psychology' },
   { label: 'Analytics', path: '/analytics', icon: 'BarChart' },
   { label: 'Profile', path: '/profile', icon: 'Person' },
+  { label: 'Subscription', path: '/subscription', icon: 'Payment' },
 ];
 
 interface SidebarProps {

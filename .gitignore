@@ -24,3 +24,13 @@ dist/
 build/
 bin/
 out/
+
+# Decoupled Standalone Repositories
+backend/common-lib/
+backend/discovery-server/
+backend/api-gateway/
+backend/user-service/
+backend/tracker-service/
+backend/notification-service/
+frontend/
+
