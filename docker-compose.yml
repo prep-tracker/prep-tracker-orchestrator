@@ -35,7 +35,7 @@ services:
 
   discovery-server:
     build:
-      context: ./backend/discovery-server
+      context: ../prep-tracker-discovery-server
       dockerfile: Dockerfile
     container_name: prept-discovery-server
     environment:
@@ -47,7 +47,7 @@ services:
 
   api-gateway:
     build:
-      context: ./backend/api-gateway
+      context: ../prep-tracker-api-gateway
       dockerfile: Dockerfile
     container_name: prept-api-gateway
     environment:
@@ -63,8 +63,8 @@ services:
 
   user-service:
     build:
-      context: ./backend/user-service
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: prep-tracker-user-service/Dockerfile
     container_name: prept-user-service
     environment:
       DATABASE_URL: jdbc:postgresql://postgres:5432/prepttracker?currentSchema=prept_user
@@ -85,8 +85,8 @@ services:
 
   tracker-service:
     build:
-      context: ./backend/tracker-service
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: prep-tracker-tracker-service/Dockerfile
     container_name: prept-tracker-service
     environment:
       DATABASE_URL: jdbc:postgresql://postgres:5432/prepttracker?currentSchema=prept_tracker
@@ -104,8 +104,8 @@ services:
 
   notification-service:
     build:
-      context: ./backend/notification-service
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: prep-tracker-notification-service/Dockerfile
     container_name: prept-notification-service
     environment:
       DATABASE_URL: jdbc:postgresql://postgres:5432/prepttracker?currentSchema=prept_notification
@@ -132,7 +132,7 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: ../prep-tracker-frontend
       dockerfile: Dockerfile
     container_name: prept-frontend
     ports:
